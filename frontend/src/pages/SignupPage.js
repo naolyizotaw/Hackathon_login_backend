@@ -3,7 +3,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { TextField, Button, Container, Typography, Box, Alert } from '@mui/material';
+import { TextField, Button, Container, Typography, Box, Alert, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
 const SignupPage = () => {
     const { signup } = useAuth();
@@ -16,15 +16,17 @@ const SignupPage = () => {
             username: '',
             email: '',
             password: '',
+            role: 'client',
         },
         validationSchema: Yup.object({
             username: Yup.string().required('Required'),
             email: Yup.string().email('Invalid email address').required('Required'),
             password: Yup.string().min(6, 'Password must be at least 6 characters').required('Required'),
+            role: Yup.string().oneOf(['client', 'tutor'], 'Invalid role').required('Required'),
         }),
         onSubmit: async (values, { setSubmitting }) => {
             try {
-                const response = await signup(values.username, values.email, values.password);
+                const response = await signup(values.username, values.email, values.password, values.role);
                 setMessage(response.data.message || 'Signup successful! Please check your email to verify your account.');
                 setError('');
                 //setTimeout(() => navigate('/login'), 5000); // Redirect to login after 5s
@@ -46,7 +48,9 @@ const SignupPage = () => {
                     Sign Up
                 </Typography>
                 {message && <Alert severity="success" sx={{ width: '100%', mt: 2 }}>{message}</Alert>}
+                }
                 {error && <Alert severity="error" sx={{ width: '100%', mt: 2 }}>{error}</Alert>}
+                }
                 <Box component="form" onSubmit={formik.handleSubmit} sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
@@ -92,6 +96,20 @@ const SignupPage = () => {
                         error={formik.touched.password && Boolean(formik.errors.password)}
                         helperText={formik.touched.password && formik.errors.password}
                     />
+                    <FormControl fullWidth margin="normal">
+                        <InputLabel>Role</InputLabel>
+                        <Select
+                            name="role"
+                            value={formik.values.role}
+                            label="Role"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            error={formik.touched.role && Boolean(formik.errors.role)}
+                        >
+                            <MenuItem value="client">Student/Client</MenuItem>
+                            <MenuItem value="tutor">Tutor</MenuItem>
+                        </Select>
+                    </FormControl>
                     <Button
                         type="submit"
                         fullWidth
