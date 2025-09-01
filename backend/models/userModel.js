@@ -21,7 +21,12 @@ const userSchema = mongoose.Schema({
     },
     verificationToken: {
         type: String
-    }
+    },
+    role: {
+        type: String,
+        required: true,
+        enum: ["admin", "client", "tutor"],
+    },
 
 }, {
     timestamps : true
